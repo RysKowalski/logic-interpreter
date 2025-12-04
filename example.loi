@@ -1,5 +1,5 @@
 FLOW START
-DDD def n,i=0
+DDD def $0,$1=0
 IO wczytaj liczba n
 IO wypisz (tekst)
 IO wypisz n
