@@ -1,14 +1,16 @@
 FLOW START
-DDD def $0,$1=0
-IO wczytaj liczba n
-IO wypisz (tekst)
-IO wypisz n
+DDD def 0
+DDD def 1
+DDD set 1 0
+IO wczytaj liczba 0
+IO wypisz "tekst"
+IO wypisz 0
 IO wypisz newl
-FLOW def jump 1
-IF (++n > i+n) 2 3
-FLOW def jump 2
-DDD operation i -= 2
-IO wypisz i
+FLOW def 1
+IF {++$0 > $1+$0} 2 3
+FLOW def 2
+DDD set $0 $0 - 2
+IO wypisz 0
 FLOW jump 2
-FLOW def jump 3
+FLOW def 3
 FLOW END
