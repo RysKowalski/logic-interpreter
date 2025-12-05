@@ -1,6 +1,6 @@
 DDD def
 IO load 0 tekst 
 IO write calc $0
-DDD set 0 $0++
+DDD set 0 ++$0
 IO write calc $0
 FLOW END

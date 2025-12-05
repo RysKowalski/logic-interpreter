@@ -162,10 +162,7 @@ class Program:
                 case 1:  # flow_jump int: number_line
                     self.current_index = line[1]
                 case 2:  # DDD_set tuple[int: var_index, list[str]: calculation]
-                    print(line[1][1])
-                    print(self.vars)
                     self.vars[line[1][0]] = self.process_calculation(line[1][1])
-                    print(self.vars)
                 case 3:  # IO_load tuple[int: var_index, str: prompt]
                     self.vars[line[1][0]] = float(input(line[1][1]))
                 case 4:  # IO_write_text str: text
@@ -247,4 +244,4 @@ def run():
 
 
 if __name__ == "__main__":
-    tests()
+    run()
