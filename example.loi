@@ -1,6 +1,12 @@
-DDD def
-IO load 0 tekst 
+FLOW def jump 0
+DDD def 0
+DDD def 1
+IO load 0 liczba 1 
+IO load 1 liczba 2 
+IF 1 0 $0 &= $1
+FLOW def jump 1
 IO write calc $0
-DDD set 0 ++$0
-IO write calc $0
+IO write newl
+IO write calc $1
+IO write newl
 FLOW END

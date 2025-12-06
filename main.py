@@ -132,56 +132,89 @@ class Program:
 
         return value
 
-    def evaluate_expression(self, calculation: list[str]) -> bool:
-        return True
+    def evaluate_expression(self, expression: list[str]) -> bool:
+        operand: str = "0"
+        operand_index: int = 0
+        for i, token in enumerate(expression):
+            if token[0] == "&":
+                operand = token[1:]
+                operand_index = i
+                break
+        if operand == "0":
+            raise ValueError(
+                f"Error in expression {expression} {operand = } {operand_index = }"
+            )
+        left_value: float = self.process_calculation(expression[:operand_index])
+        right_value: float = self.process_calculation(expression[operand_index + 1 :])
+        match operand:
+            case "=":
+                return left_value == right_value
+            case "!=":
+                return left_value != right_value
+            case "<":
+                return left_value < right_value
+            case ">":
+                return left_value > right_value
+            case "<=":
+                return left_value <= right_value
+            case ">=":
+                return left_value >= right_value
+            case _:
+                return False
 
     def run_program(self) -> None:
-        for line in self.operations:
+        while True:
+            line: tuple[int, Any] = self.operations[self.current_index]
             # # DEBUG THINGS ==========
-            # debug_dict: dict[int, str] = {
-            #     0: "flow_stop",
-            #     1: "flow_jump",
-            #     2: "DDD_set",
-            #     3: "IO_load",
-            #     4: "IO_write_text",
-            #     5: "IO_write_calculation",
-            #     6: "IO_write_expression",
-            #     7: "IO_write_newl",
-            #     8: "IF",
-            # }
-            # print(f"CURRENT_INDEX: {self.current_index}", end="\n\n")
-            # print("LINE:")
-            # print(debug_dict[line[0]], line[1], end="\n\n")
-            # print("VARS:")
-            # print(self.vars, end="\n=================================\n\n")
+            debug_dict: dict[int, str] = {
+                0: "flow_stop",
+                1: "flow_jump",
+                2: "DDD_set",
+                3: "IO_load",
+                4: "IO_write_text",
+                5: "IO_write_calculation",
+                6: "IO_write_expression",
+                7: "IO_write_newl",
+                8: "IF",
+            }
+            for i, li in enumerate(self.operations):
+                print(i, debug_dict[li[0]], li[1])
+            print()
+            print(f"CURRENT_INDEX: {self.current_index}", end="\n\n")
+            print("LINE:")
+            print(debug_dict[line[0]], line[1], end="\n\n")
+            print("VARS:")
+            print(self.vars, end="\n=================================\n\n")
             # =======================
 
             match line[0]:
                 case 0:  # flow_stop
                     return
                 case 1:  # flow_jump int: number_line
-                    self.current_index = line[1]
+                    self.current_index = int(line[1])
                 case 2:  # DDD_set tuple[int: var_index, list[str]: calculation]
                     self.vars[line[1][0]] = self.process_calculation(line[1][1])
+                    self.current_index += 1
                 case 3:  # IO_load tuple[int: var_index, str: prompt]
                     self.vars[line[1][0]] = float(input(line[1][1]))
+                    self.current_index += 1
                 case 4:  # IO_write_text str: text
                     print(line[1], end="")
                     self.current_index += 1
                 case 5:  # IO_write_calculation list[str]: calculation
-                    print(self.process_calculation(line[1]))
+                    print(self.process_calculation(line[1]), end="")
                     self.current_index += 1
                 case 6:  # IO_write_expression list[str]: expression
-                    print(self.evaluate_expression(line[1]))
+                    print(self.evaluate_expression(line[1]), end="")
                     self.current_index += 1
                 case 7:  # IO_write_newl None
                     print()
                     self.current_index += 1
                 case 8:  # IF tuple[list[str]: expression, int: line_index, int: else_line_index]
                     if self.evaluate_expression(line[1][0]):
-                        self.current_index = line[1][1]
+                        self.current_index = int(line[1][1])
                     else:
-                        self.current_index = line[1][2]
+                        self.current_index = int(line[1][2])
 
 
 def load_file(path: str = "./example.loi") -> list[str]:
@@ -189,7 +222,7 @@ def load_file(path: str = "./example.loi") -> list[str]:
         return [line.rstrip("\n") for line in file]
 
 
-def tests() -> bool:
+def calculation_tests() -> bool:
     prog: Program = Program([])
     for i in range(100):
         prog.vars.append(None)
@@ -218,6 +251,44 @@ def tests() -> bool:
             prog.vars[var[0]] = var[1]
         try:
             answer: float = prog.process_calculation(test[1])
+        except ValueError as error:
+            print("\033[1;31m" + f"TEST {i + 1}/{len(test_list)} FAILED")
+            print(error, "\033[0m")
+            continue
+
+        test_passed: bool = answer == test[0]
+        if test_passed:
+            print("\033[1;32m" + f"TEST {i + 1}/{len(test_list)} PASSED" + "\033[0m")
+            passed += 1
+        else:
+            tests_passed = False
+            print("\033[1;31m" + f"TEST {i + 1}/{len(test_list)} FAILED")
+            print(f"EXPECTED VALUE: {test[0]}, PROVIDED VALUE: {answer}")
+            print("COMPUTATION:", test[1])
+            print("VARS:", prog.vars, "\033[0m\n")
+    print(f"TESTS PASSED {passed}/{len(test_list)}")
+
+    return tests_passed
+
+
+def expression_tests() -> bool:
+    prog: Program = Program([])
+
+    test_list: list[tuple[bool, list[str], list[tuple[int, float]]]] = [
+        (True, ["2", "&=", "2"], []),
+        (False, ["1", "&=", "2"], []),
+        (True, ["4", "%", "2", "&=", "2", "/", "2", "-", "1"], []),
+        (True, ["$0", "&=", "$1"], [(0, 2), (1, 2)]),
+        (False, ["$0", "&=", "$1"], [(0, 2), (1, 3)]),
+    ]
+    tests_passed: bool = True
+    passed: int = 0
+    for i, test in enumerate(test_list):
+        prog.vars = [None for _ in range(10)]
+        for var in test[2]:
+            prog.vars[var[0]] = var[1]
+        try:
+            answer: bool = prog.evaluate_expression(test[1])
         except ValueError as error:
             print("\033[1;31m" + f"TEST {i + 1}/{len(test_list)} FAILED")
             print(error, "\033[0m")
