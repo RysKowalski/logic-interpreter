@@ -1,0 +1,8 @@
+DDD def 0
+IO load 0 podaj ilość 
+FLOW def 0
+IF 1 2 $0-- &> 0
+FLOW def 1
+IO write text *
+FLOW def 2
+FLOW END

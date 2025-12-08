@@ -5,11 +5,11 @@ IO load 0 podaj liczbę æ
 IO write text tekst
 IO write calc $0
 IO write newl
+FLOW def 0
+IF 1 2 ++$0 &> $1 + $0
 FLOW def 1
-IF 2 3 ++$0 %> $1 + $0
-FLOW def 2
 DDD set 0 $0 - 2
 IO write calc $0
-FLOW jump 2
-FLOW def 3
+FLOW jump 1
+FLOW def 2
 FLOW END

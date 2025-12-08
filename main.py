@@ -23,7 +23,7 @@ class Program:
                         case "jump":
                             self.operations.append((1, int(split_line[2])))
                         case "def":
-                            self.jumps.append(len(self.operations) + 1)
+                            self.jumps.append(len(self.operations))
                 case "DDD":
                     match split_line[1]:
                         case "def":
@@ -166,32 +166,32 @@ class Program:
         while True:
             line: tuple[int, Any] = self.operations[self.current_index]
             # # DEBUG THINGS ==========
-            debug_dict: dict[int, str] = {
-                0: "flow_stop",
-                1: "flow_jump",
-                2: "DDD_set",
-                3: "IO_load",
-                4: "IO_write_text",
-                5: "IO_write_calculation",
-                6: "IO_write_expression",
-                7: "IO_write_newl",
-                8: "IF",
-            }
-            for i, li in enumerate(self.operations):
-                print(i, debug_dict[li[0]], li[1])
-            print()
-            print(f"CURRENT_INDEX: {self.current_index}", end="\n\n")
-            print("LINE:")
-            print(debug_dict[line[0]], line[1], end="\n\n")
-            print("VARS:")
-            print(self.vars, end="\n=================================\n\n")
+            # debug_dict: dict[int, str] = {
+            #     0: "flow_stop",
+            #     1: "flow_jump",
+            #     2: "DDD_set",
+            #     3: "IO_load",
+            #     4: "IO_write_text",
+            #     5: "IO_write_calculation",
+            #     6: "IO_write_expression",
+            #     7: "IO_write_newl",
+            #     8: "IF",
+            # }
+            # for i, li in enumerate(self.operations):
+            #     print(i, debug_dict[li[0]], li[1])
+            # print()
+            # print(f"CURRENT_INDEX: {self.current_index}", end="\n\n")
+            # print("LINE:")
+            # print(debug_dict[line[0]], line[1], end="\n\n")
+            # print("VARS:")
+            # print(self.vars, end="\n=================================\n\n")
             # =======================
 
             match line[0]:
                 case 0:  # flow_stop
                     return
                 case 1:  # flow_jump int: number_line
-                    self.current_index = int(line[1])
+                    self.current_index = self.jumps[int(line[1])]
                 case 2:  # DDD_set tuple[int: var_index, list[str]: calculation]
                     self.vars[line[1][0]] = self.process_calculation(line[1][1])
                     self.current_index += 1
@@ -212,9 +212,9 @@ class Program:
                     self.current_index += 1
                 case 8:  # IF tuple[list[str]: expression, int: line_index, int: else_line_index]
                     if self.evaluate_expression(line[1][0]):
-                        self.current_index = int(line[1][1])
+                        self.current_index = self.jumps[int(line[1][1])]
                     else:
-                        self.current_index = int(line[1][2])
+                        self.current_index = self.jumps[int(line[1][2])]
 
 
 def load_file(path: str = "./example.loi") -> list[str]:

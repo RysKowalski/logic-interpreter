@@ -1,12 +1,21 @@
-FLOW def jump 0
 DDD def 0
 DDD def 1
-IO load 0 liczba 1 
-IO load 1 liczba 2 
-IF 1 0 $0 &= $1
-FLOW def jump 1
-IO write calc $0
+DDD set 1 0
+IO load 0 podaj ilość 
+FLOW def 0
+IF 1 2 $1 &< $0
+FLOW def 1
+IO write text *
+DDD set 1 $1 + 1
+FLOW jump 0
+FLOW def 2
+DDD set 1 0
+FLOW def 3
+IF 4 5 $1 &< $0 - 1
+FLOW def 4
 IO write newl
-IO write calc $1
-IO write newl
+IO write text *
+DDD set 1 $1 + 1
+FLOW jump 3
+FLOW def 5
 FLOW END
